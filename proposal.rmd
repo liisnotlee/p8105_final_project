@@ -1,0 +1,12 @@
+# Final Project Proposal
+
+Group members:
+Tentative project title: Relationships between lifestyle factors and the menstrual cycle
+Motivation: 
+Final products: website, EDA, model, screencast
+Data sources: [mcPHASES: A Dataset of Physiological, Hormonal, and Self-reported Events and Symptoms for Menstrual Health Tracking with Wearables](https://physionet.org/content/mcphases/1.0.0/)
+The planned analyses:
+- 
+
+The planned timeline
+               
