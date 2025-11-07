@@ -56,7 +56,7 @@ The [mcPHASES dataset](https://physionet.org/content/mcphases/1.0.0/) contains m
 
 - **Nov 1–7:** Dataset selection, determine analyses, and proposal submission by Nov 7. 
 - **Nov 8–14:** Data cleaning, merging, and preliminary dataset exploration. Attend project meeting.
-- **Nov 15-22:** Conduct exploratory data analyses and main analyses. Attend project meeting.
+- **Nov 15–22:** Conduct exploratory data analyses and main analyses. Attend project meeting.
 - **Nov 23–29:** Run advanced models. Attend project meeting.
 - **Nov 30–Dec 5:** Finalize results, figures, report, webpage, and screencast.
 - **Dec 6:** Final submission of report, webpage, screencast, and peer assessment.
