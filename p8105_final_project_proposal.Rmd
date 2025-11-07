@@ -1,0 +1,154 @@
+---
+title: "final_project_proposal"
+author: "Muying Li"
+date: "2025-11-07"
+output: github_document
+---
+
+# Final Project Proposal
+
+## Group members
+
+-   Muying Li (ml5218)
+-   Yue Zhao (yz5290)
+-   Khue Nguyen (nnk2114)
+-   Anu Singh (as7923)
+-   Emily Brynn Weaver (ebw2145)
+
+## Tentative project title
+
+Exploring the between lifestyle factors and the menstrual cycle among
+young women using multimodal data
+
+## Motivation:
+
+Half of the world's population have experienced or will experience
+menstruation; for many, this physiologic function occurs monthly for
+several decades. For young adults who menstruate, irregular symptoms can
+be a vital health indicator suggesting acute and chronic health
+endpoints, such as uterine fibroids or endometriosis. However, abnormal
+symptoms such as heavy bleeding or extreme pain can also be present
+without a clear underlying cause, and can cause major disruption to an
+individual's day-to-day life. By leveraging a cohort of young adult
+menstruators, we hope to better understand the relationship between
+physiological menstrual characteristics and lifestyle factors such as
+stress, sleep, and exercise.
+
+## Final products
+
+-   **Webpage**: include Home, Data Analysis (method), Exploratory
+    Analysis, Models, Report, Screencast.
+-   **Exploratory Data Analysis**: Descriptive statistics and
+    visualizations of lifestyle factors and menstrual health among the
+    menstruators (age, exercise activities, exercise time, sleep time,
+    sleep quality, menstrual phase; Determine the menstrual cycle
+    average length; correlation between lifestyle factors and menstrual
+    cycle symptoms.
+-   **Modelling**: Multivariable linear regression models to evaluate
+    the associations between some lifestyle factors, like exercise and
+    sleep to menstrual health.
+-   **Screencast**: introduce the interface and how to navigate the
+    webpage, also highlight the findings in the report.
+
+## Data sources
+
+[mcPHASES: A Dataset of Physiological, Hormonal, and Self-reported
+Events and Symptoms for Menstrual Health Tracking with
+Wearables](https://physionet.org/content/mcphases/1.0.0/)
+
+mcPHASES (menstrual cycle Physiological, Hormonal, and Self-Reported
+Events and Symptoms) is an inclusive and longitudinal menstrual dataset.
+It consists of multimodal physiological, hormonal, and self-reported
+measures collected from 42 menstruating young adults in Canada over two
+3-month intervals. Participants wore Fitbit Sense smartwatches and
+Dexcom G6 continuous glucose monitors to measure physiological signals,
+and they used Mira Plus Starter Kits to track their hormone levels.
+Additionally, participants self-reported daily symptom experiences like
+cramps, sleep quality, and stress levels.
+
+The original dataset contains 23 structured tables organized by signal
+category. For this project, we will focus on the lifestyle factors such
+as exercise, sleep, stress, and menstrual cycle symptoms. The datasets
+we will use are the following:
+
+-   `hormones_and_selfreport.csv`
+-   `height_and_weight.csv`
+-   `subject_info.csv`
+-   `stress_score.csv sleep.csv`
+-   `sleep_score.csv`
+
+## Planned analyses / visualizations
+
+-   **Descriptive statistics:**
+    -   Study population characteristics
+    -   Menstrual cycle related data (hormone level, symptoms, and
+        duration)
+    -   Lifestyle data (sleep quality, stress level exercise, etc.)
+-   **Exploratory Data Analysis:**
+    -   Distribution of menstrual cycle related data and lifestyle data
+        by demographic factors using visualizations like histograms,
+        boxplots, and heatmaps.
+    -   Correlation analysis between lifestyle factors and menstrual
+        cycle symptoms.
+    -   Examine the ***Hormone-Symptom*** relationship such as hormone
+        and symptom trajectories by phase (line plots or bar charts
+        showing the average and standard deviation of these metrics
+        across the menstrual cycle phases), and trends of luteinizing
+        hormone and estrogen levels fluctuation across the different
+        phases (scatterplots).
+    -   Examine the ***Exercise-Cycle*** Relationship such as the
+        pattern of calories and activity level across menstrual phases
+        and whether it associated with hormone or stress changes
+        (scatterplots), and multivariable linear regression that
+        includes stress score, sleep time, exercise time, exercise
+        activities, and menstrual phases.
+    -   Examine ***Sleep-Cycle*** Relationship such as sleep quality
+        during cycles (boxplots of average `sleep_points` across phases)
+-   **Prediction and ROC Analysis:**
+    -   Developing predictive models for menstrual tracking using
+        hormone biomarkers to predict ovulation, fertile windows, and/or
+        symptom onset.
+    -   Multivariate Prediction of Symptom Severity: Build a Multiple
+        Linear Regression model to predict the severity of a single key
+        symptom (e.g., fatigue or cramps) using multiple lifestyle
+        factors as predictors: `sleep_overall_score`, `stress_score`,
+        `BMI`, and the phase as a categorical variable.
+
+## Coding challenges
+
+-   **Data cleaning**:
+    -   Having to handle missing data, and deciding on strategies (to
+        remove, or keep)
+    -   Standardizing variables on different scales, converting units of
+        certain variables
+    -   Need to convert categorical responses to numeric values for
+        analysis
+-   **Handling duplicate entries:** Deciding how to aggregate multiple
+    measurements per day (ex. using mean, maximum values, or first/last
+    entry)
+-   **Data merging challenges:**
+    -   Combining multiple datasets effectively via common identifiers
+    -   Figuring out the appropriate join type without losing any
+        important data
+-   **Statistical modelling challenges:**
+    -   Testing for assumptions and ensuring they are met for the
+        analysis
+    -   Taking repeated measures into account (multiple observations per
+        person)
+
+## Planned timeline
+
+-   November 1-7: Select the dataset and determine the appropriate
+    planned analyses. Submit project proposal by November 7. (Done)
+-   November 8-14: Data cleaning, merging, and preliminary exploration
+    of hormone, stress, sleep, exercise, and body composition datasets.
+    Attend the project meeting.
+-   November 15-22: Conduct exploratory data analysis – visualize
+    hormone distributions across menstrual phases, examine basic
+    relationships. Perform main analyses. Attend the project meeting.
+-   November 23-29: Run advanced models. Attend the project meeting.
+-   November 30-December 5: Integrate results, finalize figures, and
+    complete the written report. Prepare webpage layout and screencast
+    script.
+-   December 6: Submit final report, project webpage, screencast, and
+    peer assessment.
