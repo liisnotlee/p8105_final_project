@@ -17,10 +17,10 @@ output: github_document
 
 ## Tentative project title
 
-Exploring the between lifestyle factors and the menstrual cycle among
+Exploring the relationship between lifestyle factors and the menstrual cycle among
 young women using multimodal data
 
-## Motivation:
+## Motivation
 
 Half of the world's population have experienced or will experience
 menstruation; for many, this physiologic function occurs monthly for
@@ -123,7 +123,8 @@ we will use are the following:
         certain variables
     -   Need to convert categorical responses to numeric values for
         analysis
--   **Handling duplicate entries:** Deciding how to aggregate multiple
+-   **Handling duplicate entries:** 
+    -   Deciding how to aggregate multiple
     measurements per day (ex. using mean, maximum values, or first/last
     entry)
 -   **Data merging challenges:**
@@ -138,17 +139,17 @@ we will use are the following:
 
 ## Planned timeline
 
--   November 1-7: Select the dataset and determine the appropriate
+-   **November 1-7**: Select the dataset and determine the appropriate
     planned analyses. Submit project proposal by November 7. (Done)
 -   November 8-14: Data cleaning, merging, and preliminary exploration
     of hormone, stress, sleep, exercise, and body composition datasets.
     Attend the project meeting.
--   November 15-22: Conduct exploratory data analysis – visualize
+-   **November 15-22**: Conduct exploratory data analysis – visualize
     hormone distributions across menstrual phases, examine basic
     relationships. Perform main analyses. Attend the project meeting.
--   November 23-29: Run advanced models. Attend the project meeting.
--   November 30-December 5: Integrate results, finalize figures, and
+-   **November 23-29**: Run advanced models. Attend the project meeting.
+-   **November 30-December 5**: Integrate results, finalize figures, and
     complete the written report. Prepare webpage layout and screencast
     script.
--   December 6: Submit final report, project webpage, screencast, and
+-   **December 6**: Submit final report, project webpage, screencast, and
     peer assessment.
