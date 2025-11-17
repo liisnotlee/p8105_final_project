@@ -2,12 +2,13 @@ name: "Yay internet!"
 output_dir: "."
 navbar:
   title: "Home"
-  right:
-    - text: "About"
-      href: about.html
-    - icon: fa-envelope fa-lg
-      href: mailto:<you@youremail.com>
-    - icon: fa-github fa-lg
-      href: http://github.com/<YOUR_GH_NAME>/
+  left: 
+    - text: "Data"
+      href: 
+    - text: "Report"
+      href: 
+    - text: "Analysis"
+      href: hormone.html
 output:
-  html_document
+  html_document:
+    css: bootstrap.css

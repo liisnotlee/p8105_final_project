@@ -1,7 +1,9 @@
 ---
-title: "Holy cow!"
+title: "Lifestyle Factors and Menstrual Cycle"
 ---
 
-### I have a webpage!
+### Lifestyle Factors and Menstrual Cycle
 
-And I can put all kinds of stuff on it!
+Data Science I Final Project
+
+Fall 2025
