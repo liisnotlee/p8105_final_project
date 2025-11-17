@@ -11,3 +11,11 @@ hormone=
   read_csv("data/hormones_and_selfreport.csv")
 ```
 
+##yue's interest: phase, lh, estrogen, appetite, fatigue
+```{r}
+my_int=
+  hormone|>
+  select(id,phase, lh, estrogen, appetite, fatigue )
+my_int
+```
+
