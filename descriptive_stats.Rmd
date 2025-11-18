@@ -1,0 +1,117 @@
+---
+title: "descriptive_stats"
+author: "Muying Li"
+date: "2025-11-18"
+output: html_document
+---
+
+```{r load-lib results='hide'}
+library(tidyverse)
+```
+
+# Data Preparation
+
+### `ht_wt` - Subject height and weight 
+
+- `id`
+- `height`: mean height
+- `weight`: mean weight
+- `enrollment_year`: some participants were enrolled in both 2022 and 2024, keep the latest one as enrollment year
+- `height_2022`
+- `height_2024`
+- `weight_2022`
+- `weight_2024`
+
+Process:
+
+1. Take the mean for subjects who have multiple heights and weights (both in 2022 and 2024), take the mean.
+2. Note missing data
+```{r ht-and-wt}
+ht_wt = read_csv("data/height_and_weight.csv")|> 
+  janitor::clean_names() |> 
+  # calculate mean height/weight
+  rowwise() |>
+  mutate(
+    avg_height = mean(c(height_2022, height_2024), na.rm = TRUE),
+    avg_weight = mean(c(weight_2022, weight_2024), na.rm = TRUE)
+  ) |>
+  ungroup()
+```
+
+Count how many missing values:
+```{r missing-value-ht-wt}
+ht_wt |>
+  summarise(
+    missing_ht = sum(is.na(avg_height)),
+    missing_wt = sum(is.na(avg_weight)),
+    missing_both = sum(is.na(avg_weight) & is.na(avg_height))
+  )
+
+ht_wt |>
+  filter(is.na(avg_height) | is.na(avg_weight))
+```
+
+### `hormones_and_selfreport` - hormone and self-reported data
+```{r}
+hormones_and_selfreport = read_csv("data/hormones_and_selfreport.csv") |> 
+  janitor::clean_names() 
+```
+
+Get participants study enrollment info:
+
+- `id`
+- `study_2022`: whether enrolled in 2022 (1=Yes, 0=No)
+- `study_2024`: whether enrolled in 2024 (1=Yes, 0=No)
+```{r}
+study_flag <- hormones_and_selfreport  |> 
+  distinct(id, study_interval) |> 
+  mutate(flag = 1,
+         study_interval = paste0("study_", study_interval)) |> 
+  pivot_wider(
+    names_from = study_interval,
+    values_from = flag,
+    values_fill = 0  
+  )
+```
+
+### `subject_info` - subject information 
+```{r}
+# read in csv
+subject_info_raw = read_csv("data/subject-info.csv") |> 
+  janitor::clean_names()
+```
+
+Process:
+1. merge with `ht_wt` and `study_flag`
+2. `pivot_long` for ht, wt, and study (1=2022, 2=2024, 3=2025)
+```{r}
+subject_info <- subject_info_raw  |> 
+  left_join(ht_wt, by = "id") |> 
+  left_join(study_flag, by = "id") |> 
+  mutate(
+    study = case_when(
+      study_2022 == 1 & study_2024 == 1 ~ 3L,  # both 2022 & 2024
+      study_2022 == 1 & study_2024 == 0 ~ 1L,  
+      study_2024 == 1 & study_2022 == 0 ~ 2L,  
+      TRUE ~ NA_integer_
+    )
+  ) |> 
+  pivot_longer(
+    cols = c(weight_2022, weight_2024, height_2022, height_2024),
+    names_to  = c(".value", "year"), 
+    names_sep = "_"                 
+  ) |> 
+  rename(
+    weight_yr = weight,
+    height_yr = height
+  )
+
+```
+
+# Visualization
+
+Age distribution
+
+- View age in total (2022 & 2024)
+- View age by study (2022, 2024)
+

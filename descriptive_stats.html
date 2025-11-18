@@ -9,9 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Muying Li" />
 
+<meta name="date" content="2025-11-18" />
 
-<title>p8105_final_project_proposal</title>
+<title>descriptive_stats</title>
 
 <script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -32,6 +34,8 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -282,111 +286,101 @@ $(document).ready(function () {
 
 
 
+<h1 class="title toc-ignore">descriptive_stats</h1>
+<h4 class="author">Muying Li</h4>
+<h4 class="date">2025-11-18</h4>
 
 </div>
 
 
-<div id="p8105-final-project-proposal" class="section level1">
-<h1>P8105 FINAL PROJECT PROPOSAL</h1>
-<p>2025-11-07</p>
-<div id="group-members" class="section level2">
-<h2>Group members</h2>
-<p>Muying Li (ml5218), Yue Zhao (yz5290), Khue Nguyen (nnk2114), Anu
-Singh (as7923), Emily Brynn Weaver (ebw2145)</p>
-</div>
-<div id="tentative-project-title" class="section level2">
-<h2>Tentative project title</h2>
-<p>Exploring the relationship between lifestyle factors and the
-menstrual cycle among young adult menstruators using multimodal data</p>
-</div>
-<div id="motivation" class="section level2">
-<h2>Motivation</h2>
-<p>Half of the world’s population experiences menstruation, yet
-irregular symptoms often lack clear underlying causes while
-significantly disrupting daily life. By analyzing data from young adult
-menstruators, we aim to understand relationships between physiological
-menstrual characteristics and lifestyle factors such as stress, sleep,
-and exercise.</p>
-</div>
-<div id="intended-final-products" class="section level2">
-<h2>Intended final products</h2>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ dplyr     1.1.4     ✔ readr     2.1.5
+## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+## ✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+## ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+## ✔ purrr     1.1.0     
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+<div id="data-preparation" class="section level1">
+<h1>Data Preparation</h1>
+<p><code>ht_wt</code> - Subject height and weight</p>
 <ul>
-<li><strong>Webpage</strong> with Home, Exploratory Analysis, Models,
-Report, and Screencast pages</li>
-<li><strong>Exploratory analysis</strong> of lifestyle factors
-(exercise, sleep, stress) and menstrual health patterns, including cycle
-length analysis and symptom correlations</li>
-<li><strong>Statistical models</strong> using multivariable linear
-regression to evaluate associations between lifestyle factors and
-menstrual health</li>
-<li><strong>Screencast</strong> demonstrating webpage navigation and
-highlighting key findings</li>
+<li><code>id</code></li>
+<li><code>height</code></li>
+<li><code>weight</code></li>
 </ul>
-</div>
-<div id="anticipated-data-sources" class="section level2">
-<h2>Anticipated data sources</h2>
-<p>The <a href="https://physionet.org/content/mcphases/1.0.0/">mcPHASES
-dataset</a> contains multimodal data from 42 menstruating young adults
-in Canada tracked over two 3-month intervals. Participants wore Fitbit
-Sense smartwatches and Dexcom G6 glucose monitors, used Mira Plus kits
-for hormone tracking, and self-reported daily symptoms. The original
-dataset contains 23 structured tables. We will focus on:</p>
-<ul>
-<li><code>hormones_and_selfreport.csv</code></li>
-<li><code>height_and_weight.csv</code></li>
-<li><code>subject_info.csv</code></li>
-<li><code>stress_score.csv sleep.csv</code></li>
-<li><code>sleep_score.csv</code></li>
-</ul>
-</div>
-<div id="planned-analyses-visualizations" class="section level2">
-<h2>Planned analyses / visualizations</h2>
-<ul>
-<li><strong>Descriptive statistics:</strong> Study population
-characteristics, menstrual cycle data (hormones, symptoms, duration),
-and lifestyle factors (sleep, stress, exercise)</li>
-<li><strong>Exploratory Data Analysis:</strong> Distribution
-visualizations (histograms, boxplots, heatmaps) by demographics;
-correlation analysis between lifestyle factors and symptoms;
-hormone-symptom trajectories across cycle phases (line plots, bar
-charts); exercise and sleep pattern analysis across menstrual phases;
-analysis of sleep quality during cycle phases (boxplots)</li>
-<li><strong>Prediction and ROC Analysis:</strong> Predictive models
-using hormone biomarkers for ovulation and symptom onset; multiple
-linear regression predicting symptom severity using lifestyle predictors
-and cycle phase</li>
-</ul>
-</div>
-<div id="coding-challenges" class="section level2">
-<h2>Coding challenges</h2>
-<ul>
-<li><strong>Data cleaning:</strong> Handling missing data, standardizing
-variables, converting categorical to numeric values</li>
-<li>Managing duplicate entries and aggregating multiple daily
-measurements</li>
-<li>Merging multiple datasets via common identifiers without data
-loss</li>
-<li><strong>Statistical modeling:</strong> Testing assumptions and
-accounting for repeated measures</li>
-</ul>
-</div>
-<div id="planned-timeline" class="section level2">
-<h2>Planned timeline</h2>
-<ul>
-<li><strong>Nov 1–7:</strong> Dataset selection, determine analyses, and
-proposal submission by Nov 7.</li>
-<li><strong>Nov 8–14:</strong> Data cleaning, merging, and preliminary
-dataset exploration. Attend project meeting.</li>
-<li><strong>Nov 15–22:</strong> Conduct exploratory data analyses and
-main analyses. Attend project meeting.</li>
-<li><strong>Nov 23–29:</strong> Run advanced models. Attend project
-meeting.</li>
-<li><strong>Nov 30–Dec 5:</strong> Finalize results, figures, report,
-webpage, and screencast.</li>
-<li><strong>Dec 6:</strong> Final submission of report, webpage,
-screencast, and peer assessment.</li>
-</ul>
-</div>
+<p>Process:</p>
+<ol style="list-style-type: decimal">
+<li>Ensure each subject has ONLY one height and weight on file. If a
+subject contains multiple height and weight (both in 2022 and 2024),
+take the mean.</li>
+<li>Note missing data:</li>
+</ol>
+<pre class="r"><code>ht_wt = read_csv(&quot;data/height_and_weight.csv&quot;)|&gt; 
+  janitor::clean_names() |&gt; 
+  rowwise() |&gt;
+  mutate(
+    height = mean(c(height_2022, height_2024), na.rm = TRUE),
+    weight = mean(c(weight_2022, weight_2024), na.rm = TRUE)
+  ) |&gt;
+  ungroup() |&gt; 
+  select(id, height, weight)</code></pre>
+<pre><code>## Rows: 42 Columns: 5
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## dbl (5): id, height_2022, weight_2022, height_2024, weight_2024
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<p>Count how many missing values:</p>
+<pre class="r"><code>ht_wt |&gt;
+  summarise(
+    missing_ht = sum(is.na(height)),
+    missing_wt = sum(is.na(weight)),
+    missing_both = sum(is.na(weight) &amp; is.na(height))
+  )</code></pre>
+<pre><code>## # A tibble: 1 × 3
+##   missing_ht missing_wt missing_both
+##        &lt;int&gt;      &lt;int&gt;        &lt;int&gt;
+## 1         17         12           11</code></pre>
+<pre class="r"><code>ht_wt |&gt;
+  filter(is.na(height) | is.na(weight))</code></pre>
+<pre><code>## # A tibble: 18 × 3
+##       id height weight
+##    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+##  1     1    NaN  NaN  
+##  2     2    NaN  NaN  
+##  3     6    NaN  NaN  
+##  4     8    NaN  NaN  
+##  5    11    NaN  NaN  
+##  6    13    NaN   58.9
+##  7    16    NaN   57.3
+##  8    20    NaN  NaN  
+##  9    22    NaN   53  
+## 10    23    NaN  NaN  
+## 11    27    NaN  NaN  
+## 12    29    NaN  NaN  
+## 13    39    NaN   55.5
+## 14    40    164  NaN  
+## 15    44    NaN   55  
+## 16    45    NaN  NaN  
+## 17    47    NaN   54.9
+## 18    49    NaN  NaN</code></pre>
+<p><code>subj</code> - subject information</p>
+<p>Process:</p>
+<pre class="r"><code>subj = read_csv(&quot;data/subject-info.csv&quot;) |&gt; 
+  janitor::clean_names()</code></pre>
+<pre><code>## Rows: 42 Columns: 8
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (5): gender, ethnicity, education, sexually_active, self_report_menstrua...
+## dbl (3): id, birth_year, age_of_first_menarche
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 </div>
 
 
