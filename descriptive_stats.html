@@ -304,30 +304,47 @@ $(document).ready(function () {
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()
 ## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+<pre class="r"><code>library(patchwork)
+library(ggsci)</code></pre>
+<p>Set plot theme</p>
+<pre class="r"><code>theme_set(theme_minimal() + theme(legend.position = &quot;bottom&quot;))
+options(
+  ggplot2.discrete.colour = function(...) scale_colour_brewer(..., palette = &quot;Pastel2&quot;),
+  ggplot2.discrete.fill   = function(...) scale_fill_brewer(..., palette = &quot;Pastel2&quot;),
+
+  ggplot2.continuous.colour = function(...) scale_colour_distiller(..., palette = &quot;PuRd&quot;),
+  ggplot2.continuous.fill   = function(...) scale_fill_distiller(..., palette = &quot;PuRd&quot;)
+)</code></pre>
 <div id="data-preparation" class="section level1">
 <h1>Data Preparation</h1>
-<p><code>ht_wt</code> - Subject height and weight</p>
+<div id="ht_wt---subject-height-and-weight" class="section level3">
+<h3><code>ht_wt</code> - Subject height and weight</h3>
 <ul>
 <li><code>id</code></li>
-<li><code>height</code></li>
-<li><code>weight</code></li>
+<li><code>height</code>: mean height</li>
+<li><code>weight</code>: mean weight</li>
+<li><code>enrollment_year</code>: some participants were enrolled in
+both 2022 and 2024, keep the latest one as enrollment year</li>
+<li><code>height_2022</code></li>
+<li><code>height_2024</code></li>
+<li><code>weight_2022</code></li>
+<li><code>weight_2024</code></li>
 </ul>
 <p>Process:</p>
 <ol style="list-style-type: decimal">
-<li>Ensure each subject has ONLY one height and weight on file. If a
-subject contains multiple height and weight (both in 2022 and 2024),
-take the mean.</li>
-<li>Note missing data:</li>
+<li>Take the mean for subjects who have multiple heights and weights
+(both in 2022 and 2024), take the mean.</li>
+<li>Note missing data</li>
 </ol>
 <pre class="r"><code>ht_wt = read_csv(&quot;data/height_and_weight.csv&quot;)|&gt; 
   janitor::clean_names() |&gt; 
+  # calculate mean height/weight
   rowwise() |&gt;
   mutate(
-    height = mean(c(height_2022, height_2024), na.rm = TRUE),
-    weight = mean(c(weight_2022, weight_2024), na.rm = TRUE)
+    avg_height = mean(c(height_2022, height_2024), na.rm = TRUE),
+    avg_weight = mean(c(weight_2022, weight_2024), na.rm = TRUE)
   ) |&gt;
-  ungroup() |&gt; 
-  select(id, height, weight)</code></pre>
+  ungroup()</code></pre>
 <pre><code>## Rows: 42 Columns: 5
 ## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
@@ -338,40 +355,73 @@ take the mean.</li>
 <p>Count how many missing values:</p>
 <pre class="r"><code>ht_wt |&gt;
   summarise(
-    missing_ht = sum(is.na(height)),
-    missing_wt = sum(is.na(weight)),
-    missing_both = sum(is.na(weight) &amp; is.na(height))
+    missing_ht = sum(is.na(avg_height)),
+    missing_wt = sum(is.na(avg_weight)),
+    missing_both = sum(is.na(avg_weight) &amp; is.na(avg_height))
   )</code></pre>
 <pre><code>## # A tibble: 1 × 3
 ##   missing_ht missing_wt missing_both
 ##        &lt;int&gt;      &lt;int&gt;        &lt;int&gt;
 ## 1         17         12           11</code></pre>
 <pre class="r"><code>ht_wt |&gt;
-  filter(is.na(height) | is.na(weight))</code></pre>
-<pre><code>## # A tibble: 18 × 3
-##       id height weight
-##    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
-##  1     1    NaN  NaN  
-##  2     2    NaN  NaN  
-##  3     6    NaN  NaN  
-##  4     8    NaN  NaN  
-##  5    11    NaN  NaN  
-##  6    13    NaN   58.9
-##  7    16    NaN   57.3
-##  8    20    NaN  NaN  
-##  9    22    NaN   53  
-## 10    23    NaN  NaN  
-## 11    27    NaN  NaN  
-## 12    29    NaN  NaN  
-## 13    39    NaN   55.5
-## 14    40    164  NaN  
-## 15    44    NaN   55  
-## 16    45    NaN  NaN  
-## 17    47    NaN   54.9
-## 18    49    NaN  NaN</code></pre>
-<p><code>subj</code> - subject information</p>
-<p>Process:</p>
-<pre class="r"><code>subj = read_csv(&quot;data/subject-info.csv&quot;) |&gt; 
+  filter(is.na(avg_height) | is.na(avg_weight))</code></pre>
+<pre><code>## # A tibble: 18 × 7
+##       id height_2022 weight_2022 height_2024 weight_2024 avg_height avg_weight
+##    &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+##  1     1          NA        NA            NA        NA          NaN      NaN  
+##  2     2          NA        NA            NA        NA          NaN      NaN  
+##  3     6          NA        NA            NA        NA          NaN      NaN  
+##  4     8          NA        NA            NA        NA          NaN      NaN  
+##  5    11          NA        NA            NA        NA          NaN      NaN  
+##  6    13          NA        58.9          NA        NA          NaN       58.9
+##  7    16          NA        57.3          NA        NA          NaN       57.3
+##  8    20          NA        NA            NA        NA          NaN      NaN  
+##  9    22          NA        53            NA        NA          NaN       53  
+## 10    23          NA        NA            NA        NA          NaN      NaN  
+## 11    27          NA        NA            NA        NA          NaN      NaN  
+## 12    29          NA        NA            NA        NA          NaN      NaN  
+## 13    39          NA        55.5          NA        NA          NaN       55.5
+## 14    40         164        NA            NA        NA          164      NaN  
+## 15    44          NA        55            NA        NA          NaN       55  
+## 16    45          NA        NA            NA        NA          NaN      NaN  
+## 17    47          NA        NA            NA        54.9        NaN       54.9
+## 18    49          NA        NA            NA        NA          NaN      NaN</code></pre>
+</div>
+<div id="hormones_and_selfreport---hormone-and-self-reported-data"
+class="section level3">
+<h3><code>hormones_and_selfreport</code> - hormone and self-reported
+data</h3>
+<pre class="r"><code>hormones_and_selfreport = read_csv(&quot;data/hormones_and_selfreport.csv&quot;) |&gt; 
+  janitor::clean_names() </code></pre>
+<pre><code>## Rows: 5659 Columns: 22
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (15): phase, flow_volume, flow_color, appetite, exerciselevel, headaches...
+## dbl  (6): id, study_interval, day_in_study, lh, estrogen, pdg
+## lgl  (1): is_weekend
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<p>Get participants study enrollment info:</p>
+<ul>
+<li><code>id</code></li>
+<li><code>study_2022</code>: whether enrolled in 2022 (1=Yes, 0=No)</li>
+<li><code>study_2024</code>: whether enrolled in 2024 (1=Yes, 0=No)</li>
+</ul>
+<pre class="r"><code>study_flag &lt;- hormones_and_selfreport  |&gt; 
+  distinct(id, study_interval) |&gt; 
+  mutate(flag = 1,
+         study_interval = paste0(&quot;study_&quot;, study_interval)) |&gt; 
+  pivot_wider(
+    names_from = study_interval,
+    values_from = flag,
+    values_fill = 0  
+  )</code></pre>
+</div>
+<div id="subject_info---subject-information" class="section level3">
+<h3><code>subject_info</code> - subject information</h3>
+<pre class="r"><code># read in csv
+subject_info_raw = read_csv(&quot;data/subject-info.csv&quot;) |&gt; 
   janitor::clean_names()</code></pre>
 <pre><code>## Rows: 42 Columns: 8
 ## ── Column specification ────────────────────────────────────────────────────────
@@ -381,6 +431,114 @@ take the mean.</li>
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<p>Process: 1. merge with <code>ht_wt</code> and <code>study_flag</code>
+2. <code>pivot_long</code> for ht, wt, and study (1=2022, 2=2024,
+3=2025) 3. calculate age based on enrollment study year</p>
+<pre class="r"><code>subject_info &lt;- subject_info_raw  |&gt; 
+  # merging
+  left_join(ht_wt, by = &quot;id&quot;) |&gt; 
+  left_join(study_flag, by = &quot;id&quot;) |&gt;
+  # add a study_flag
+  mutate(
+    study = case_when(
+      study_2022 == 1 &amp; study_2024 == 1 ~ 3L,  # both 2022 &amp; 2024
+      study_2022 == 1 &amp; study_2024 == 0 ~ 1L,  
+      study_2024 == 1 &amp; study_2022 == 0 ~ 2L,  
+      TRUE ~ NA_integer_
+    )
+  ) |&gt; 
+  # pivot_long for wt &amp; ht
+  pivot_longer(
+    cols = c(weight_2022, weight_2024, height_2022, height_2024),
+    names_to  = c(&quot;.value&quot;, &quot;year&quot;), 
+    names_sep = &quot;_&quot;                 
+  ) |&gt; 
+  rename(
+    weight_yr = weight,
+    height_yr = height
+  ) |&gt; 
+  # keep only the relevant study year
+  filter(
+    (study == 1 &amp; year == 2022) |
+    (study == 2 &amp; year == 2024) |
+    (study == 3)
+  ) |&gt; 
+  # calculate age
+  mutate(
+    year = as.numeric(year),
+    birth_year = as.numeric(birth_year),
+    age = year - birth_year
+  ) |&gt; 
+  # get a mean age for each id
+  group_by(id) |&gt; 
+  mutate(
+    mean_age = mean(age, na.rm = TRUE)
+  ) |&gt; 
+  ungroup()</code></pre>
+</div>
+</div>
+<div id="visualization" class="section level1">
+<h1>Visualization</h1>
+<div id="age-distribution" class="section level3">
+<h3>Age distribution</h3>
+<ul>
+<li>View mean age in total (2022 &amp; 2024)</li>
+<li>View age by study (2022, 2024)</li>
+</ul>
+<pre class="r"><code>overall_n &lt;- subject_info |&gt; 
+  distinct(id) |&gt; 
+  count(name = &quot;n&quot;)
+
+age_boxplot_all &lt;- subject_info |&gt; 
+  ggplot(aes(x=&quot;All participants&quot;, y = mean_age)) +
+  geom_boxplot(fill = &quot;#bcbddc&quot;)+
+  geom_text(
+    data = overall_n,
+    aes(
+      x = &quot;All participants&quot;, 
+      y = max(subject_info$age, na.rm = TRUE) + 3,
+      label = paste0(&quot;n = &quot;, n)
+    )
+  ) +
+  labs(
+    x = NULL,
+    y = &quot;Mean age (years)&quot;,
+    title = &quot;Mean age of all participants&quot;
+  ) +
+  ylim(10, NA) +
+  theme(
+    axis.text.x = element_text(size = 10),
+    plot.title  = element_text(hjust = 0.5)
+  )
+
+count_df &lt;- subject_info |&gt; 
+  distinct(id, year) |&gt; 
+  count(year, name=&quot;n&quot;)
+
+age_boxplot_by_study &lt;- subject_info |&gt; 
+  ggplot(aes(x = factor(year), y = age, fill = factor(year))) +
+  geom_boxplot() +
+  geom_text(
+    data = count_df,
+    aes(x = factor(year), y = max(subject_info$age, na.rm = TRUE) + 1, 
+        label = paste0(&quot;n = &quot;, n)),
+    size = 4
+  ) +
+  labs(
+    x = &quot;Year&quot;,
+    y = &quot;Age (years)&quot;,
+    fill = &quot;Year&quot;,
+    title = &quot;Age Distribution by Study Year&quot;
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    legend.position = &quot;none&quot; 
+  )
+
+age_boxplots &lt;- age_boxplot_all + age_boxplot_by_study</code></pre>
+<pre class="r"><code>age_boxplots</code></pre>
+<p><img src="descriptive_stats_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+</div>
 </div>
 
 

@@ -5,8 +5,22 @@ date: "2025-11-18"
 output: html_document
 ---
 
-```{r load-lib results='hide'}
+```{r load-lib, results='hide'}
 library(tidyverse)
+library(patchwork)
+library(ggsci)
+```
+
+Set plot theme
+```{r}
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+options(
+  ggplot2.discrete.colour = function(...) scale_colour_brewer(..., palette = "Pastel2"),
+  ggplot2.discrete.fill   = function(...) scale_fill_brewer(..., palette = "Pastel2"),
+
+  ggplot2.continuous.colour = function(...) scale_colour_distiller(..., palette = "PuRd"),
+  ggplot2.continuous.fill   = function(...) scale_fill_distiller(..., palette = "PuRd")
+)
 ```
 
 # Data Preparation
@@ -85,6 +99,7 @@ Process:
 1. merge with `ht_wt` and `study_flag`
 2. `pivot_long` for ht, wt, and study (1=2022, 2=2024, 3=2025)
 3. calculate age based on enrollment study year
+4. calculate BMI
 ```{r}
 subject_info <- subject_info_raw  |> 
   # merging
@@ -120,14 +135,82 @@ subject_info <- subject_info_raw  |>
     year = as.numeric(year),
     birth_year = as.numeric(birth_year),
     age = year - birth_year
-  )
+  ) |> 
+  # get a mean age for each id
+  group_by(id) |> 
+  mutate(
+    mean_age = mean(age, na.rm = TRUE)
+  ) |> 
+  ungroup()
 ```
 
 # Visualization
 
-Age distribution
+### Age distribution
 
-- View age in total (2022 & 2024)
+- View mean age in total (2022 & 2024)
 - View age by study (2022, 2024)
-test
+```{r age-distribution-boxplot}
+overall_n <- subject_info |> 
+  distinct(id) |> 
+  count(name = "n")
 
+age_boxplot_all <- subject_info |> 
+  ggplot(aes(x="All participants", y = mean_age)) +
+  geom_boxplot(fill = "#bcbddc")+
+  geom_text(
+    data = overall_n,
+    aes(
+      x = "All participants", 
+      y = max(subject_info$age, na.rm = TRUE) + 3,
+      label = paste0("n = ", n)
+    )
+  ) +
+  labs(
+    x = NULL,
+    y = "Mean age (years)",
+    title = "Mean age of all participants"
+  ) +
+  ylim(15, NA) +
+  theme(
+    axis.text.x = element_text(size = 10),
+    plot.title  = element_text(hjust = 0.5)
+  )
+
+count_df <- subject_info |> 
+  distinct(id, year) |> 
+  count(year, name="n")
+
+age_boxplot_by_study <- subject_info |> 
+  ggplot(aes(x = factor(year), y = age, fill = factor(year))) +
+  geom_boxplot() +
+  geom_text(
+    data = count_df,
+    aes(x = factor(year), y = max(subject_info$age, na.rm = TRUE) + 1, 
+        label = paste0("n = ", n)),
+    size = 4
+  ) +
+  labs(
+    x = "Year",
+    y = "Age (years)",
+    fill = "Year",
+    title = "Age Distribution by Study Year"
+  ) +
+  ylim(15, NA) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "none" 
+  )
+
+age_boxplots <- age_boxplot_all + age_boxplot_by_study
+```
+```{r}
+age_boxplots
+```
+
+
+### Weight, Height, BMI distribution
+
+- boxplot for weight (all (mean)vs. by study)
+- boxplot for height (all (mean)vs. by study)
+- boxplot for BMI
