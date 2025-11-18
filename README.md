@@ -3,5 +3,10 @@
 Progress update:
 
 Li: 
-1. update site.yml file
-2. descriptive stats
+1. updated site.yml file
+2. done all descriptive stats (age, weight, height)
+3. set color theme for plots to be pastel2
+
+TODO:
+- interactivity over charts (hover to show n)
+- combine findings into report summary 
