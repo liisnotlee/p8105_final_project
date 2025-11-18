@@ -1,14 +1,26 @@
-name: "Yay internet!"
+name: "P8105 Final Project"
 output_dir: "."
 navbar:
-  title: "Home"
   left: 
+    - icon: fa-solid fa-spa
+      href: index.html
     - text: "Data"
       href: 
     - text: "Report"
       href: 
-    - text: "Analysis"
-      href: hormone.html
+    - text: "Lifestyle Factors Analyses"
+      menu:
+      - text: "Hormone"
+        href: hormone.html
+      - text: "Exercise"
+        href:
+      - text: "Sleep & Stress"
+        href:
+  right:
+    - text: "Meet the Team"
+      href: 
+    - icon: fa-github fa-lg
+      href: 
 output:
   html_document:
-    css: bootstrap.css
+    theme: readable
