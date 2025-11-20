@@ -64,7 +64,10 @@ Combine the sleep and stress score
 sleep_score1 = sleep_score |>
   select(id,study_interval, day_in_study, overall_score)
 
-  
+sleep1 = sleep|>
+   select(id,study_interval, sleep_start_day_in_study, timeinbed) |>
+   mutate(day_in_study = sleep_start_day_in_study) |>
+  select(-sleep_start_day_in_study)
 stress_score1 = stress_score |>
   select(id, study_interval, day_in_study, stress_score)|>
   distinct(id, study_interval, day_in_study, .keep_all = TRUE)
@@ -74,6 +77,23 @@ sleep_stress = inner_join(sleep_score1, stress_score1, join_by("id", "study_inte
 # check of na values
 sum(is.na(sleep_stress$overall_score))
 sum(is.na(sleep_stress$stress_score))
+```
+
+
+```{r}
+# graphs to show the score across ids
+sleep_stress|>
+  group_by(id, study_interval) |>
+  summarize(
+    mean_sleep_score = mean(overall_score, na.rm = TRUE),
+    mean_stress_score = mean(stress_score, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = id, mean_sleep_score)) +
+  geom_line(aes(y = mean_sleep_score, color = "mean_sleep_score") )+
+  geom_line(aes(y = mean_stress_score, color = "mean_stress_score")) +
+  facet_grid(~study_interval)
+  
 
 ```
 
@@ -123,12 +143,12 @@ sleep_stress_hormone |>
     phase = factor(phase, levels = phase_order)
   ) |>
   ggplot(aes(x = phase, y = value, color = metric, group = metric)) +
-    geom_line(size = 1) +
+    geom_line(linewidth= 1) +
     geom_point(size = 3) +
     facet_wrap(~study_interval) +
     labs(color = "Metric", y = "Mean Score", x = "Phase") +
     labs(
-    title = "stress and sleep score Across Menstrual Cycle Phases",
+    title = "Stress and Sleep Score Across Menstrual Cycle Phases",
     x = "Menstrual Cycle Phase",
     y = "score"
   ) +
@@ -137,19 +157,39 @@ sleep_stress_hormone |>
 
 ```
 
+Variation of sleep score across menstrual cycle phases
 
 ```{r}
 sleep_stress_hormone |>
-  ggplot(aes(x = phase, y = overall_score))+
-  geom_boxplot()+
+  ggplot(aes(x = phase, y = overall_score, fill = phase))+
+  geom_violin(alpha = 0.5)+
+  geom_boxplot(width = 0.2)+
       labs(
-    title = "sleep score Across Menstrual Cycle Phases",
+    title = "Sleep Score Across Menstrual Cycle Phases",
     x = "Menstrual Cycle Phase",
     y = "score"
   ) +
     theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
+
+Variation of stress score across menstrual cycle phases
+```{r}
+sleep_stress_hormone |>
+  ggplot(aes(x = phase, y = stress_score, fill = phase))+
+  geom_violin(alpha = 0.5)+
+  geom_boxplot(width = 0.2)+
+      labs(
+    title = "Stress Score Across Menstrual Cycle Phases",
+    x = "Menstrual Cycle Phase",
+    y = "score"
+  ) +
+    theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
 
 
 
@@ -224,4 +264,50 @@ sleep_stress_hormone2 |>
 
 ```
 
-retry to push
+```{r}
+library(lme4)
+
+#  model
+m1 <- lmer(stress_score ~ phase + study_interval + (1 | id), data = sleep_stress_hormone2)
+summary(m1)
+
+```
+
+
+
+```{r}
+sleep_stress_hormone_add =
+  sleep_score1 |>
+    inner_join(hormone1,      by = join_by(id, day_in_study)) |>
+    inner_join(sleep1,        by = join_by(id, study_interval, day_in_study)) |>
+    inner_join(stress_score1, by = join_by(id, study_interval, day_in_study))
+
+# create a table
+sleep_stress_hormone_add |>
+  group_by(phase, id) |>
+  summarize(
+    timeinbed = mean(timeinbed/60)
+  )|>
+  pivot_wider(names_from = phase,
+              values_from = timeinbed) |>
+  knitr::kable(title = "average time in bed", digits = 1)
+```
+
+
+```{r}
+sleep_stress_hormone_add |>
+  group_by(phase, id) |>
+  summarize(
+    timeinbed = mean(timeinbed/60)
+  )|> 
+  ggplot(aes(x = phase, y = timeinbed, fill = phase)) +
+  geom_violin(alpha = 0.5) +
+  geom_boxplot(width = 0.2) +
+  labs(
+    title = "Sleep time Across Menstrual Cycle Phases",
+    x = "Menstrual Cycle Phase",
+    y = "Time in bed (hrs)"
+  ) +
+    theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
