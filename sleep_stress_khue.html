@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>sleep_stress_EDA</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html"></a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="fa fa-solid fa-spa"></span>
+     
+  </a>
+</li>
+<li class="dropdown-header">Data</li>
+<li class="dropdown-header">Report</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Lifestyle Factors Analyses
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="hormone.html">Hormone</a>
+    </li>
+    <li class="dropdown-header">Exercise</li>
+    <li class="dropdown-header">Sleep &amp; Stress</li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown-header">Meet the Team</li>
+<li>
+  <a>
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">sleep_stress_EDA</h1>
+
+</div>
+
+
+<p>Load the data</p>
+<p>View the sleep time for different participants in each study
+interval</p>
+<pre class="r"><code># plot the mean timein bed in hour
+sleep |&gt;
+  group_by(id, study_interval)|&gt;
+  summarize(mean_sleep = mean(timeinbed/60),
+            sd_sleep = sd(timeinbed),
+            mean_efficiency = mean(efficiency),
+            sd_efficiency = sd(efficiency)) |&gt;
+  ggplot(aes(x = id, y = mean_sleep, color = id))+
+  geom_point()+
+  facet_grid(study_interval~.)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;id&#39;. You can override using the `.groups`
+## argument.</code></pre>
+<p><img src="sleep_stress_khue_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>The average sleep time for each person is different each study
+interval and varied across participants. In 2022, some participants
+slept less than 5 hours and some slept more than 8 hours. In 2024, most
+participants have better sleep length, 7-8 hours.</p>
+<p>Combine the sleep and stress score</p>
+<pre class="r"><code># join two data sets, using inner join
+sleep_score1 = sleep_score |&gt;
+  select(id,study_interval, day_in_study, overall_score)
+
+  
+stress_score1 = stress_score |&gt;
+  select(id, study_interval, day_in_study, stress_score)|&gt;
+  distinct(id, study_interval, day_in_study, .keep_all = TRUE)
+
+sleep_stress = inner_join(sleep_score1, stress_score1, join_by(&quot;id&quot;, &quot;study_interval&quot;, &quot;day_in_study&quot;))
+ 
+# check of na values
+sum(is.na(sleep_stress$overall_score))</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="r"><code>sum(is.na(sleep_stress$stress_score))</code></pre>
+<pre><code>## [1] 0</code></pre>
+<p>Load and clean the hormone data for menstrual phases</p>
+<pre class="r"><code>hormone1 = hormone |&gt;
+  select(id,phase, day_in_study, lh, estrogen,fatigue,moodswing)|&gt;
+  mutate(
+    phase = factor(phase, levels = c(&quot;Follicular&quot;, &quot;Fertility&quot;, &quot;Luteal&quot;, &quot;Menstrual&quot;)),
+    fatigue = factor(fatigue, 
+                     levels = c(&quot;Low&quot;, &quot;Moderate&quot;, &quot;High&quot;, &quot;Very High&quot;)),
+    moodswing = factor(moodswing,
+                       levels = c(&quot;Very Low/Little&quot;, &quot;Low&quot;, &quot;Moderate&quot;, &quot;High&quot;,&quot;Very High&quot;,&quot;Not at all&quot;))
+  )
+phase_order &lt;- c(&quot;Menstrual&quot;, &quot;Follicular&quot;, &quot;Fertility&quot;, &quot;Luteal&quot;)</code></pre>
+<p>Joined data with the phase in hormone dataset</p>
+<pre class="r"><code>sleep_stress_hormone =
+  inner_join(sleep_stress,hormone1, join_by(id, day_in_study))</code></pre>
+<p>Now explore the changes of the stress score with the menstrual
+cycle</p>
+<pre class="r"><code>sleep_stress_hormone |&gt;
+  group_by(phase, study_interval) |&gt;
+  summarize(
+    mean_sleep_score = mean(overall_score, na.rm = TRUE),
+    mean_stress_score = mean(stress_score, na.rm = TRUE),
+    .groups = &quot;drop&quot;
+  ) |&gt;
+  pivot_longer(
+    cols = starts_with(&quot;mean_&quot;),
+    names_to = &quot;metric&quot;,
+    values_to = &quot;value&quot;
+  ) |&gt;
+  mutate(
+    metric = recode(metric,
+                    mean_sleep_score  = &quot;Sleep Score&quot;,
+                    mean_stress_score = &quot;Stress Score&quot;),
+    phase = factor(phase, levels = phase_order)
+  ) |&gt;
+  ggplot(aes(x = phase, y = value, color = metric, group = metric)) +
+    geom_line(size = 1) +
+    geom_point(size = 3) +
+    facet_wrap(~study_interval) +
+    labs(color = &quot;Metric&quot;, y = &quot;Mean Score&quot;, x = &quot;Phase&quot;) +
+    labs(
+    title = &quot;stress and sleep score Across Menstrual Cycle Phases&quot;,
+    x = &quot;Menstrual Cycle Phase&quot;,
+    y = &quot;score&quot;
+  ) +
+    theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))</code></pre>
+<pre><code>## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+## ℹ Please use `linewidth` instead.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.</code></pre>
+<p><img src="sleep_stress_khue_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>sleep_stress_hormone |&gt;
+  ggplot(aes(x = phase, y = overall_score))+
+  geom_boxplot()+
+      labs(
+    title = &quot;sleep score Across Menstrual Cycle Phases&quot;,
+    x = &quot;Menstrual Cycle Phase&quot;,
+    y = &quot;score&quot;
+  ) +
+    theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))</code></pre>
+<p><img src="sleep_stress_khue_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>Explore the variation among different participants. adding the id,
+ethnicity and birthyear of the subjects.</p>
+<pre class="r"><code>sleep_stress_hormone2 = subject |&gt;
+  select(id, birth_year, ethnicity) |&gt;
+  mutate(age = 2025- birth_year) |&gt;
+  full_join(sleep_stress_hormone, join_by(id)) </code></pre>
+<p>View the stress and sleep score across menstrual cycle phases for
+each</p>
+<pre class="r"><code>sleep_stress_hormone2 |&gt;
+  group_by(phase, study_interval, ethnicity) |&gt;
+  summarize(
+    mean_sleep_score = mean(overall_score, na.rm = TRUE),
+    mean_stress_score = mean(stress_score, na.rm = TRUE),
+    .groups = &quot;drop&quot;
+  ) |&gt;
+  pivot_longer(
+    cols = starts_with(&quot;mean_&quot;),
+    names_to = &quot;metric&quot;,
+    values_to = &quot;value&quot;
+  ) |&gt;
+  drop_na()|&gt;
+  mutate(
+    metric = recode(metric,
+                    mean_sleep_score  = &quot;Sleep Score&quot;,
+                    mean_stress_score = &quot;Stress Score&quot;),
+    phase = factor(phase, levels = phase_order)
+  ) |&gt;
+  ggplot(aes(x = phase, y = value, color = ethnicity, group = ethnicity)) +
+    geom_line(size = 1) +
+    geom_point(size = 3) +
+    facet_grid(~ study_interval + metric) +
+    labs(color = &quot;Ethnicity&quot;, y = &quot;Mean Score&quot;, x = &quot;Phase&quot;) +
+    labs(
+    title = &quot;stress and sleep score Across Menstrual Cycle Phases&quot;,
+    x = &quot;Menstrual Cycle Phase&quot;,
+    y = &quot;score&quot;
+  ) +
+    theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))</code></pre>
+<p><img src="sleep_stress_khue_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+variation of sleep score and stress score across different ethnicity</p>
+<pre class="r"><code>sleep_stress_hormone2 |&gt;
+  select(id, ethnicity, stress_score, overall_score) |&gt;
+  drop_na()|&gt;
+  pivot_longer(
+    cols = c(stress_score, overall_score),
+    names_to = &quot;metric&quot;,
+    values_to = &quot;value&quot;
+  ) |&gt;
+  mutate(
+    metric = recode(metric,
+      overall_score = &quot;Sleep Score&quot;,
+      stress_score  = &quot;Stress Score&quot;
+    )
+  ) |&gt;
+  ggplot(aes(x = ethnicity, y = value, fill = metric)) +
+  geom_boxplot(position = position_dodge(width = 0.8)) +
+  labs(y = &quot;Score&quot;, fill = &quot;Metric&quot;)</code></pre>
+<p><img src="sleep_stress_khue_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>retry to push</p>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
