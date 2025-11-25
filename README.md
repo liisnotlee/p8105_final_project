@@ -4,9 +4,12 @@ Meeting Agenda
 
 TODO List for all
 
-1.  Remaining work
+1.  Remaining work & structure of the website
+    1.  additional analysis
+    2.  screencast
+    3.  website build
 2.  Report breakdown
-    1.  Motivation + Related Work + Initial Questions [one person]
+    1.  Motivation + Related Work + Questions [one person]
     2.  Data Summary [one person] + Cleaning Process [by person?]
     3.  EDA by sections
     4.  Additional analysis (models)
