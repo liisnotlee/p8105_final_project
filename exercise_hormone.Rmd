@@ -127,6 +127,7 @@ ggplot(merged_data %>% filter(!is.na(avg_heartrate)),
   theme_minimal() +
   theme(legend.position = "none")
 ```
+
 ### Likelihood of exercising across phases
 ```{r}
 # Calculate total proportion of days where exercise sessions > 0 
@@ -152,7 +153,8 @@ ggplot(exercise_likelihood, aes(x = phase, y = proportion, fill = phase)) +
   theme(legend.position = "none")
 ```
 
-# Hormone levels vs. exercise duration
+
+### Hormone levels vs. exercise duration
 ```{r}
 # NOT TO INCLUDE, DOES NOT REALLY OFFER ANY INSIGHT
 # Estrogen vs exercise duration
@@ -188,6 +190,7 @@ ggplot(merged_data %>% filter(total_duration_min > 0 & !is.na(pdg)),
        color = "Phase") +
   theme_minimal()
 ```
+
 
 ### Comparing menstrual symptoms to exercise duration
 ```{r}
@@ -275,8 +278,6 @@ merged_data %>%
     mean_fatigue = mean(fatigue_num, na.rm = TRUE),
     .groups = "drop"
   )
-
-print(summary_stats)
 ```
 
 ### Inferential analysis
