@@ -5,6 +5,9 @@ date: "2025-11-17"
 ---
 ```{r, include=FALSE}
 library(tidyverse)
+library(ordinal)    
+library(broom)
+
 ```
 ```{r, include=FALSE}
 hormone=
@@ -28,8 +31,11 @@ phase_order <- c("Menstrual", "Follicular", "Fertility", "Luteal")
 
 ```
 
+
+
+
 first, explore relationship between LH and estrogen
-```{r, include=FALSE}
+```{r}
 my_int_avg= 
   my_int|>
   group_by(phase)|>
@@ -47,7 +53,7 @@ ggplot(my_int_avg, aes(x = phase)) +
   geom_point(aes(y = estrogen_mean, color = "Estrogen"), size = 3) +
   geom_point(aes(y = lh_mean, color = "LH"),size= 3) +
   labs(
-    title = "Estrogen and LH Levels Across Menstrual Cycle Phases",
+    title = "Average Estrogen and LH Levels Across Menstrual Cycle Phases",
     x = "Menstrual Cycle Phase",
     y = "Hormone Level",
     color = "Hormone"
@@ -58,6 +64,9 @@ ggplot(my_int_avg, aes(x = phase)) +
 ```
 #estrogen surge at fertility(actually it should be called ovulation)
 #lh also peak at ovulation
+
+
+
 
 fatigue and moodswing
 
@@ -110,7 +119,35 @@ symptom_means <- my_int_numeric %>%
 symptom_means
 ```
 
-```{r, include=FALSE}
+#overall scatterplot (can be deleted)
+```{r}
+ggplot(my_int_numeric, aes(x = phase, y = fatigue_num)) +
+  geom_jitter(width = 0.2, alpha = 0.4, size = 1.5) +
+  stat_summary(fun = mean, geom = "point", color = "red", size = 4) +
+  labs(
+    title = "Fatigue Intensity Across Menstrual Cycle Phases",
+    x = "Phase",
+    y = "Fatigue (0–4 scale)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+ggplot(my_int_numeric, aes(x = phase, y = moodswing_num)) +
+  geom_jitter(width = 0.2, alpha = 0.4, size = 1.5) +
+  stat_summary(fun = mean, geom = "point", color = "blue", size = 4) +
+  labs(
+    title = "Mood Swing Intensity Across Menstrual Cycle Phases",
+    x = "Phase",
+    y = "Mood Swing (0–5 scale)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+```{r}
 # Mood swing single line plot
 ggplot(symptom_means, aes(x = phase, y = avg_moodswing, group = 1)) +
   geom_line(color = "purple", size = 1.5, alpha = 0.7) +
@@ -130,7 +167,7 @@ ggplot(symptom_means, aes(x = phase, y = avg_moodswing, group = 1)) +
     panel.grid.major = element_line(color = "grey90")
   )
 ```
-```{r, include=FALSE}
+```{r}
 # Fatigue single line plot
 ggplot(symptom_means, aes(x = phase, y = avg_fatigue, group = 1)) +
   geom_line(color = "darkorange", size = 1.5, alpha = 0.7) +
@@ -155,18 +192,20 @@ ggplot(symptom_means, aes(x = phase, y = avg_fatigue, group = 1)) +
 
 ## for the test, i want to test if moodswing and fatigue have statsitically difference between those four phases. 
 
-```{r, include=FALSE}
+```{r}
 kruskal.test(moodswing_num ~ phase, data = my_int_numeric)
 kruskal.test(fatigue_num ~ phase, data = my_int_numeric)
 ```
-#cannot reject H0, There is no strong statistical evidence that average instensity of moodswing or fatigue vary across menstrual phases in this dataset. 
+#Mood swing intensity differs significantly across menstrual phases.
+
+#Fatigue intensity also differs significantly across phases.
 
 
 
 #swich approach: longtidual changes
 
 
-```{r, include=FALSE}
+```{r}
 library(lme4)
 
 
@@ -179,31 +218,347 @@ m2 <- lmer(fatigue_num ~ phase + (1 | id), data = my_int_numeric)
 summary(m2)
 
 ```
-#Individuals differ substantially in their baseline moodswing levels.
-#Again, individuals differ in fatigue baseline, but not as widely as moodswing.
+#for moodswing: Luteal phase: +0.13 (t = 2.49) Menstrual phase: +0.36 (t = 5.86) After accounting for repeated measures within individuals, mood swings are significantly higher in the Luteal and Menstrual phases compared to the Follicular phase.
 
-###After adjusting for each individual’s baseline, moodswing intensity significantly increases in the Luteal and Menstrual phases compared with the Follicular phase. Fatigue slightly increases during the Menstrual phase, but the effect is small and borderline significant.
+#for fatigue: Menstrual phase: +0.27 (t = 4.94) Luteal (+0.07) and Fertility (~0) phases not significant. only the Menstrual phase shows significantly higher fatigue compared to the Follicular phase.
 
-##Linear mixed-effects models were used to evaluate within-person changes in moodswing and fatigue across menstrual phases. The models included a random intercept for each participant to account for individual baseline differences. 
-For moodswing, both the Luteal phase (β = 0.144) and the Menstrual phase (β = 0.210) showed significant increases compared with the Follicular phase, indicating that moodswing intensity tends to rise at these points in the cycle. Fertility showed no difference. For fatigue, only the Menstrual phase showed a borderline increase (β = 0.098), while Fertility and Luteal phases did not differ from Follicular. These findings suggest that while group-level averages obscure differences, within individuals, moodswing increases meaningfully in the late luteal and menstrual stages, and fatigue rises slightly during menstruation.
+reletionship between hormone and flow color, flor volume, and appetite
 
-
-
-##some updates (Li's advice)
-1 scatter plot btw hormone and symtoms. (it's super ugly, no typical trend. everyone has their baseline, #subjective self-report)
-
-2. include more variable such as "flow color" or "flow volume": most of the data is "NOT AT ALL" and na. 
 ```{r}
-sum(hormone$flow_volume == "Not at all", na.rm = TRUE)
-sum(hormone$flow_color == "Not at all", na.rm = TRUE)
-hormone|>
-  summarize(
-    na_flow_volume = sum(is.na(flow_volume)),
-    na_flow_color  = sum(is.na(flow_color))
-  )
-nrow(hormone)
+my_i = 
+  hormone |>
+  select(id, phase, lh, estrogen, flow_color, flow_volume, appetite) |>
+  mutate(
+    phase = factor(phase, levels = c("Follicular", "Fertility", "Luteal", "Menstrual")),
+    flow_volume = factor(flow_volume, 
+                         levels = c("Not at all", "Spotting / Very Light","Light","Moderate",
+                                     "Somewhat Heavy","Heavy", "Very Heavy")),
+    flow_color = factor(flow_color,
+                        levels = c("Not at all", "Pink","Bright Red", "Dark Brown / Dark Red", "Grey", 
+                                    "Black","Other")),
+    appetite = factor(appetite,
+                      levels = c("Very Low","Low",  "Moderate", "High", "Very High"))
+  )   
+
+phase_order = c("Menstrual", "Follicular", "Fertility", "Luteal")
+colSums(is.na(my_i[, c("flow_volume", "flow_color", "appetite")]))
+  
+```
+
+```{r}
+# Flow volume frequencies by phase
+table_flow_vol <- my_i %>%
+  filter(!is.na(flow_volume)) %>%
+  count(phase, flow_volume) %>%
+  group_by(phase) %>%
+  mutate(pct = n / sum(n) * 100) %>%
+  arrange(phase)
+table_flow_vol
+
+# Flow color
+table_flow_color <- my_i %>%
+  filter(!is.na(flow_color)) %>%
+  count(phase, flow_color) %>%
+  group_by(phase) %>%
+  mutate(pct = n / sum(n) * 100)
+table_flow_color
+
+# Appetite
+table_appetite <- my_i %>%
+  filter(!is.na(appetite)) %>%
+  count(phase, appetite) %>%
+  group_by(phase) %>%
+  mutate(pct = n / sum(n) * 100)
+table_appetite
 
 ```
 
-stress and sleepissue
 
+Overall scatter plot for three variables:
+```{r}
+
+my_i_plot <- my_i %>%
+  filter(!is.na(phase) & (!is.na(flow_volume) | !is.na(flow_color) | !is.na(appetite)))
+
+# Optional: convert ordered factors to numeric for plotting
+my_i_plot <- my_i_plot %>%
+  mutate(
+    flow_volume_num = as.numeric(flow_volume),
+    flow_color_num  = as.numeric(flow_color),
+    appetite_num    = as.numeric(appetite)
+  )
+
+# 1) FLOW VOLUME
+ggplot(my_i_plot, aes(x = phase, y = flow_volume_num)) +
+  geom_jitter(width = 0.2, height = 0, alpha = 0.4, color = "blue") +
+  stat_summary(fun = mean, geom = "point", size = 3, color = "red") +
+  stat_summary(fun = mean, geom = "line", aes(group = 1), color = "red", size = 1) +
+  scale_y_continuous(
+    breaks = 1:length(levels(my_i$flow_volume)),
+    labels = levels(my_i$flow_volume)
+  ) +
+  labs(title = "Flow Volume Across Menstrual Cycle Phases",
+       y = "Flow Volume",
+       x = "Phase") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# 2) FLOW COLOR
+ggplot(my_i_plot, aes(x = phase, y = flow_color_num)) +
+  geom_jitter(width = 0.2, height = 0, alpha = 0.4, color = "darkgreen") +
+  stat_summary(fun = mean, geom = "point", size = 3, color = "red") +
+  stat_summary(fun = mean, geom = "line", aes(group = 1), color = "red", size = 1) +
+  scale_y_continuous(
+    breaks = 1:length(levels(my_i$flow_color)),
+    labels = levels(my_i$flow_color)
+  ) +
+  labs(title = "Flow Color Across Menstrual Cycle Phases",
+       y = "Flow Color",
+       x = "Phase") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# 3) APPETITE
+ggplot(my_i_plot, aes(x = phase, y = appetite_num)) +
+  geom_jitter(width = 0.2, height = 0, alpha = 0.4, color = "purple") +
+  stat_summary(fun = mean, geom = "point", size = 3, color = "red") +
+  stat_summary(fun = mean, geom = "line", aes(group = 1), color = "red", size = 1) +
+  scale_y_continuous(
+    breaks = 1:length(levels(my_i$appetite)),
+    labels = levels(my_i$appetite)
+  ) +
+  labs(title = "Appetite Across Menstrual Cycle Phases",
+       y = "Appetite",
+       x = "Phase") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+
+#give them order to do the avereage graph
+my_i_num <- my_i %>%
+  filter(!is.na(phase)) %>%
+  mutate(
+    # Flow volume: example mapping
+    flow_volume_num = case_when(
+      flow_volume == "Not at all" ~ 0,
+      flow_volume == "Spotting / Very Light" ~ 1,
+      flow_volume == "Light" ~ 2,
+      flow_volume == "Moderate" ~ 3,
+      flow_volume == "Somewhat Heavy" ~ 4,
+      flow_volume == "Heavy" ~ 5,
+      flow_volume == "Very Heavy" ~ 6,
+      TRUE ~ NA_real_
+    ),
+    # Flow color: example mapping
+    flow_color_num = case_when(
+      flow_color == "Not at all" ~ 0,
+      flow_color == "Pink" ~ 1,
+      flow_color == "Bright Red" ~ 2,
+      flow_color == "Dark Brown / Dark Red" ~ 3,
+      flow_color == "Grey" ~ 4,
+      flow_color == "Black" ~ 5,
+      flow_color == "Other" ~ 6,
+      TRUE ~ NA_real_
+    ),
+    # Appetite: example mapping
+    appetite_num = case_when(
+      appetite == "Very Low" ~ 0,
+      appetite == "Low" ~ 1,
+      appetite == "Moderate" ~ 2,
+      appetite == "High" ~ 3,
+      appetite == "Very High" ~ 4,
+      TRUE ~ NA_real_
+    )
+  )
+```
+
+```{r}
+#graphing
+phase_order <- c("Menstrual", "Follicular", "Fertility", "Luteal")
+
+my_i_avg <- my_i_num %>%
+  group_by(phase = factor(phase, levels = phase_order)) %>%
+  summarise(
+    avg_flow_volume = mean(flow_volume_num, na.rm = TRUE),
+    avg_flow_color  = mean(flow_color_num, na.rm = TRUE),
+    avg_appetite    = mean(appetite_num, na.rm = TRUE),
+    .groups = 'drop'
+  )
+
+flow_volume_levels <- c("Not at all", "Spotting / Very Light", "Light", "Moderate",
+                        "Somewhat Heavy", "Heavy", "Very Heavy")
+
+ggplot(my_i_avg, aes(x = phase, y = avg_flow_volume, group = 1)) +
+  geom_line(color = "blue", size = 1.5) +
+  geom_point(color = "red", size = 3) +
+  geom_text(aes(label = round(avg_flow_volume,2)), vjust = -0.5) +
+  scale_y_continuous(limits = c(0,6), breaks = 0:6, labels = flow_volume_levels) +
+  labs(title = "Average Flow Volume Across Menstrual Cycle Phases",
+       x = "Phase", y = "Flow Volume") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Flow color
+flow_color_levels <- c("Not at all", "Pink", "Bright Red", "Dark Brown / Dark Red",
+                       "Grey", "Black", "Other")
+
+ggplot(my_i_avg, aes(x = phase, y = avg_flow_color, group = 1)) +
+  geom_line(color = "darkgreen", size = 1.5) +
+  geom_point(color = "red", size = 3) +
+  geom_text(aes(label = round(avg_flow_color,2)), vjust = -0.5) +
+  scale_y_continuous(limits = c(0,6), breaks = 0:6, labels = flow_color_levels) +
+  labs(title = "Average Flow Color Across Menstrual Cycle Phases",
+       x = "Phase", y = "Flow Color") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Appetite
+appetite_levels <- c("Very Low", "Low", "Moderate", "High", "Very High")
+
+ggplot(my_i_avg, aes(x = phase, y = avg_appetite, group = 1)) +
+  geom_line(color = "purple", size = 1.5) +
+  geom_point(color = "red", size = 3) +
+  geom_text(aes(label = round(avg_appetite,2)), vjust = -0.5) +
+  scale_y_continuous(limits = c(0,4), breaks = 0:4, labels = appetite_levels) +
+  labs(title = "Average Appetite Across Menstrual Cycle Phases",
+       x = "Phase", y = "Appetite") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+#the not at all strongly affect the curve. so i tried another scatter plot for each (delete the not at all)
+
+```{r}
+my_i_filtered <- my_i %>%
+  filter(flow_volume != "Not at all", flow_color != "Not at all") %>%
+  mutate(
+    # Flow volume numeric mapping
+    flow_volume_num = case_when(
+      flow_volume == "Spotting / Very Light" ~ 1,
+      flow_volume == "Light" ~ 2,
+      flow_volume == "Moderate" ~ 3,
+      flow_volume == "Somewhat Heavy" ~ 4,
+      flow_volume == "Heavy" ~ 5,
+      flow_volume == "Very Heavy" ~ 6,
+      TRUE ~ NA_real_
+    ),
+    # Flow color numeric mapping
+    flow_color_num = case_when(
+      flow_color == "Pink" ~ 1,
+      flow_color == "Bright Red" ~ 2,
+      flow_color == "Dark Brown / Dark Red" ~ 3,
+      flow_color == "Grey" ~ 4,
+      flow_color == "Black" ~ 5,
+      flow_color == "Other" ~ 6,
+      TRUE ~ NA_real_
+    )
+  )
+phase_order <- c("Menstrual", "Follicular", "Fertility", "Luteal")
+
+avg_flow <- my_i_filtered %>%
+  group_by(phase = factor(phase, levels = phase_order)) %>%
+  summarise(
+    avg_flow_volume = mean(flow_volume_num, na.rm = TRUE),
+    avg_flow_color = mean(flow_color_num, na.rm = TRUE),
+    .groups = 'drop'
+  )
+flow_volume_levels <- c("Spotting / Very Light", "Light", "Moderate", 
+                        "Somewhat Heavy", "Heavy", "Very Heavy")
+
+ggplot(avg_flow, aes(x = phase, y = avg_flow_volume, group = 1)) +
+  geom_line(color = "blue", size = 1.5) +
+  geom_point(color = "red", size = 3) +
+  geom_text(aes(label = round(avg_flow_volume,2)), vjust = -0.5) +
+  scale_y_continuous(limits = c(1,6), breaks = 1:6, labels = flow_volume_levels) +
+  labs(title = "Average Flow Volume Across Menstrual Cycle Phases (excluding 'Not at all')",
+       x = "Phase", y = "Flow Volume") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Flow Color
+flow_color_levels <- c("Pink", "Bright Red", "Dark Brown / Dark Red", "Grey",
+                       "Black", "Other")
+
+ggplot(avg_flow, aes(x = phase, y = avg_flow_color, group = 1)) +
+  geom_line(color = "darkgreen", size = 1.5) +
+  geom_point(color = "red", size = 3) +
+  geom_text(aes(label = round(avg_flow_color,2)), vjust = -0.5) +
+  scale_y_continuous(limits = c(1,6), breaks = 1:6, labels = flow_color_levels) +
+  labs(title = "Average Flow Color Across Menstrual Cycle Phases (excluding 'Not at all')",
+       x = "Phase", y = "Flow Color") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+
+
+```{r}
+#(with the not at all data)
+library(dplyr)
+library(tidyr)
+
+# FLOW VOLUME
+fv_df <- my_i_num %>%
+  filter(!is.na(flow_volume_num)) %>%
+  group_by(id, phase) %>%
+  summarise(flow_volume_num = mean(flow_volume_num, na.rm = TRUE), .groups = 'drop') %>%
+  pivot_wider(names_from = phase, values_from = flow_volume_num) %>%
+  drop_na()
+
+friedman.test(as.matrix(fv_df[,-1]))  # exclude id column
+
+# FLOW COLOR
+fc_df <- my_i_num %>%
+  filter(!is.na(flow_color_num)) %>%
+  group_by(id, phase) %>%
+  summarise(flow_color_num = mean(flow_color_num, na.rm = TRUE), .groups = 'drop') %>%
+  pivot_wider(names_from = phase, values_from = flow_color_num) %>%
+  drop_na()
+
+friedman.test(as.matrix(fc_df[,-1]))
+
+# APPETITE
+app_df <- my_i_num %>%
+  filter(!is.na(appetite_num)) %>%
+  group_by(id, phase) %>%
+  summarise(appetite_num = mean(appetite_num, na.rm = TRUE), .groups = 'drop') %>%
+  pivot_wider(names_from = phase, values_from = appetite_num) %>%
+  drop_na()
+
+friedman.test(as.matrix(app_df[,-1]))
+
+```
+
+#Flow volume & flow color: There are clear differences across menstrual cycle phases. Likely patterns: heavier flow and darker color in the Menstrual phase, lighter/spotting in Follicular/Luteal.
+
+#Appetite:Overall differences across phases are not statistically significant at α = 0.05. There may be a trend, but the variation is smaller or more individual-specific.
+
+
+To account for within-subject repeated measures and get phase-specific effects, we can fit CLMM models:
+```{r}
+library(ordinal)
+
+# Flow Volume
+clmm_flowvol <- clmm(flow_volume ~ phase + (1 | id), data = my_i, Hess = TRUE)
+summary(clmm_flowvol)
+
+# Flow Color
+clmm_flowcolor <- clmm(flow_color ~ phase + (1 | id), data = my_i, Hess = TRUE)
+summary(clmm_flowcolor)
+
+# Appetite
+clmm_app <- clmm(appetite ~ phase + (1 | id), data = my_i, Hess = TRUE)
+summary(clmm_app)
+
+```
+#interpretation:
+Flow volume and flow color: strong differences across phases (p < 0.001, Friedman).
+
+Appetite: generally stable, but slightly higher in Luteal phase (CLMM significant).
+
+Individual differences are substantial, as shown by random effect variance.
