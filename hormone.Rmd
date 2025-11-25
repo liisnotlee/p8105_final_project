@@ -30,52 +30,6 @@ my_int=
 phase_order <- c("Menstrual", "Follicular", "Fertility", "Luteal")
 
 ```
-Overall scatter plot:
-```{r}
-ggplot(my_int_numeric, aes(x = phase, y = fatigue_num)) +
-  geom_jitter(width = 0.2, alpha = 0.4, size = 1.5) +
-  stat_summary(fun = mean, geom = "point", color = "red", size = 4) +
-  labs(
-    title = "Fatigue Intensity Across Menstrual Cycle Phases",
-    x = "Phase",
-    y = "Fatigue (0–4 scale)"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-```
-```{r}
-ggplot(my_int_numeric, aes(x = phase, y = moodswing_num)) +
-  geom_jitter(width = 0.2, alpha = 0.4, size = 1.5) +
-  stat_summary(fun = mean, geom = "point", color = "blue", size = 4) +
-  labs(
-    title = "Mood Swing Intensity Across Menstrual Cycle Phases",
-    x = "Phase",
-    y = "Mood Swing (0–5 scale)"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-```
-```{r}
-ggplot(my_int_numeric, 
-       aes(x = phase, y = moodswing_num, group = id, color = factor(id))) +
-
-  geom_line(alpha = 0.4) +
-  geom_point(size = 1.8, alpha = 0.6) +
-
-  guides(color = "none")
-  labs(
-    title = "Individual Mood Swing Patterns Across Menstrual Phases",
-    x = "Menstrual Cycle Phase",
-    y = "Mood Swing Intensity (0–5)"
-  ) +
-  theme_minimal() +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1)
-  )
-
-```
 
 
 
@@ -165,6 +119,34 @@ symptom_means <- my_int_numeric %>%
 symptom_means
 ```
 
+#overall scatterplot (can be deleted)
+```{r}
+ggplot(my_int_numeric, aes(x = phase, y = fatigue_num)) +
+  geom_jitter(width = 0.2, alpha = 0.4, size = 1.5) +
+  stat_summary(fun = mean, geom = "point", color = "red", size = 4) +
+  labs(
+    title = "Fatigue Intensity Across Menstrual Cycle Phases",
+    x = "Phase",
+    y = "Fatigue (0–4 scale)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+ggplot(my_int_numeric, aes(x = phase, y = moodswing_num)) +
+  geom_jitter(width = 0.2, alpha = 0.4, size = 1.5) +
+  stat_summary(fun = mean, geom = "point", color = "blue", size = 4) +
+  labs(
+    title = "Mood Swing Intensity Across Menstrual Cycle Phases",
+    x = "Phase",
+    y = "Mood Swing (0–5 scale)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
 ```{r}
 # Mood swing single line plot
 ggplot(symptom_means, aes(x = phase, y = avg_moodswing, group = 1)) +
@@ -240,22 +222,22 @@ summary(m2)
 
 #for fatigue: Menstrual phase: +0.27 (t = 4.94) Luteal (+0.07) and Fertility (~0) phases not significant. only the Menstrual phase shows significantly higher fatigue compared to the Follicular phase.
 
-reletionship between hormone and 
+reletionship between hormone and flow color, flor volume, and appetite
 
 ```{r}
 my_i = 
   hormone |>
-  select(id, phase, lh, estrogen, fatigue, moodswing, flow_color, flow_volume, appetite) |>
+  select(id, phase, lh, estrogen, flow_color, flow_volume, appetite) |>
   mutate(
     phase = factor(phase, levels = c("Follicular", "Fertility", "Luteal", "Menstrual")),
     flow_volume = factor(flow_volume, 
-                         levels = c("Not at all", "Very Heavy", "Somewhat Heavy", "Moderate", "Light", 
-                                    "Spotting / Very Light", "Heavy")),
+                         levels = c("Not at all", "Spotting / Very Light","Light","Moderate",
+                                     "Somewhat Heavy","Heavy", "Very Heavy")),
     flow_color = factor(flow_color,
-                        levels = c("Not at all", "Bright Red", "Dark Brown / Dark Red", "Grey", 
-                                   "Pink", "Other", "Black")),
+                        levels = c("Not at all", "Pink","Bright Red", "Dark Brown / Dark Red", "Grey", 
+                                    "Black","Other")),
     appetite = factor(appetite,
-                      levels = c("Low", "Very Low", "Moderate", "High", "Very High"))
+                      levels = c("Very Low","Low",  "Moderate", "High", "Very High"))
   )   
 
 phase_order = c("Menstrual", "Follicular", "Fertility", "Luteal")
@@ -291,35 +273,10 @@ table_appetite
 
 ```
 
-```{r}
-table_flowvol <- my_i_clean %>%
-  filter(!is.na(flow_volume)) %>%
-  count(phase, flow_volume) %>%
-  group_by(phase) %>%
-  mutate(pct = n / sum(n) * 100)
-table_flowvol
-
-# FLOW COLOR
-table_flowcolor <- my_i_clean %>%
-  filter(!is.na(flow_color)) %>%
-  count(phase, flow_color) %>%
-  group_by(phase) %>%
-  mutate(pct = n / sum(n) * 100)
-table_flowcolor
-
-# APPETITE
-table_appetite <- my_i_clean %>%
-  filter(!is.na(appetite)) %>%
-  count(phase, appetite) %>%
-  group_by(phase) %>%
-  mutate(pct = n / sum(n) * 100)
-table_appetite
-
-```
-
 
 Overall scatter plot for three variables:
 ```{r}
+
 my_i_plot <- my_i %>%
   filter(!is.na(phase) & (!is.na(flow_volume) | !is.na(flow_color) | !is.na(appetite)))
 
