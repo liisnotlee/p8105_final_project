@@ -3,6 +3,7 @@ title: "Lifestyle Factors and Menstrual Cycle"
 ---
 
 
-# Data Science I Final Project
+# Lifestyle Factors and Menstrual Cycle
 
-## Fall 2025
+## Data Science I Fall 2025 Final Project
+
